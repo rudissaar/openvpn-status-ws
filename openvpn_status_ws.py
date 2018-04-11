@@ -15,16 +15,6 @@ define('port', default=12200, type=int, help='Server port')
 define('allowed_hosts', default="localhost:12200", multiple=True,
        help='Allowed hosts for cross domain connections')
 
-def shutdown(server):
-    ioloop = IOLoop.instance()
-    logging.info('Stopping server.')
-    server.stop()
-
-def finalize():
-    ioloop.stop()
-    logging.info('Stopped.')
-
-    ioloop.add_timeout(time.time() + 1.5, finalize)
 
 parse_command_line()
 application = OpenvpnStatusWsApplication(debug=options.debug)
@@ -33,3 +23,8 @@ server.listen(options.port)
 signal.signal(signal.SIGINT, lambda sig, frame: shutdown(server))
 logging.info('Starting server on localhost:{}'.format(options.port))
 IOLoop.instance().start()
+
+def shutdown(server):
+    ioloop = IOLoop.instance()
+    logging.info('Stopping server.')
+    server.stop()
