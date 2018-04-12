@@ -19,7 +19,7 @@ def get_status_log_path_for_node(node_id):
     settings_path = container + 'settings.json'
 
     if not os.path.isfile(settings_path):
-        return False
+        return None
 
     with open(settings_path, 'r') as file_handle:
         data = json.load(file_handle)
@@ -27,10 +27,10 @@ def get_status_log_path_for_node(node_id):
         if data and 'nodes' in data:
             nodes = data['nodes']
         else:
-            return False
+            return None
 
         for node in nodes:
             if int(node['id']) == int(node_id) and node['path']:
                 return node['path'].strip()
 
-    return False
+    return None
