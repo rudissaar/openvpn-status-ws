@@ -1,12 +1,12 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 import os
+import json
 from tornado.websocket import WebSocketHandler, WebSocketClosedError
 from time import sleep
-from openvpn_status_ws_helper import get_status_log_path_for_node
+from openvpn_status_ws_helper import get_status_log_path_for_node, parse_status_log
 
 class OpenvpnStatusWsHandler(WebSocketHandler):
-    subscribers = set()
     status_log_path = None
     timestamp = None
     
@@ -15,22 +15,22 @@ class OpenvpnStatusWsHandler(WebSocketHandler):
 
     def open(self, node):
         self.status_log_path = get_status_log_path_for_node(node)
-        print(self.status_log_path)
-        OpenvpnStatusWsHandler.subscribers.add(self)
+        
+        if not self.status_log_path:
+            self.close()
 
     def on_message(self, message):
         if message.strip() == 'ping':
-            self.write_message(message)
+            data = json.dumps({'marker': 'ping'})
+            self.write_message(data)
 
-        self.write_message('message')
         self.send()
 
-    def on_close(self):
-        OpenvpnStatusWsHandler.subscribers.remove(self)
-
     def send(self):
-        mtime = os.stat('/etc/openvpn/openvpn-status.log').st_mtime
+        mtime = os.stat(self.status_log_path).st_mtime
+
         if mtime != self.timestamp:
             self.timestamp = mtime
-            self.write_message('Changed.')
-        sleep(1)
+            data = parse_status_log(self.status_log_path)
+            self.write_message(data)
+        sleep(0.5)

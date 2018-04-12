@@ -5,7 +5,11 @@ import json
 
 def parse_status_log(status_log_path):
     with open(status_log_path, 'r') as file_handle:
-        print(file_handle.read())
+        data = dict()
+        data['marker'] = 'data'
+        data['content'] = file_handle.read()
+        return json.dumps(data)
+    return False
 
 def get_status_log_path_for_node(node_id):
     container = os.path.dirname(os.path.realpath(__file__))
