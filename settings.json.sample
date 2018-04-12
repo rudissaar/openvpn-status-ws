@@ -1,9 +1,8 @@
 {
     "nodes": [
         {
-            "id": "server_1",
+            "id": "195",
             "path": "/etc/openvpn/openvpn-status.log",
-            "port": 12200
         }
     ]
 }
