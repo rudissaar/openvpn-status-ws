@@ -1,8 +1,8 @@
 {
     "nodes": [
         {
-            "id": "195",
-            "path": "/etc/openvpn/openvpn-status.log",
+            "id": "8",
+            "path": "/etc/openvpn/openvpn-status.log"
         }
     ]
 }

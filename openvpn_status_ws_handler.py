@@ -1,12 +1,17 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
+
+"""File that contains OpenvpnStatusWsHandler class."""
+
 import os
 import json
-from tornado.websocket import WebSocketHandler, WebSocketClosedError
+from tornado.websocket import WebSocketHandler
 from openvpn_status_ws_helper import get_status_log_path_for_node, parse_status_log
 
 
 class OpenvpnStatusWsHandler(WebSocketHandler):
+    """Class that handler WebSocket connections."""
+    # pylint: disable=W0223
     options = dict()
     options['node'] = None
     options['status_log_path'] = None
@@ -16,6 +21,7 @@ class OpenvpnStatusWsHandler(WebSocketHandler):
         return True
 
     def open(self, node):
+        # pylint: disable=W0221
         self.node = node
         self.status_log_path = get_status_log_path_for_node(self.node)
 
@@ -27,7 +33,12 @@ class OpenvpnStatusWsHandler(WebSocketHandler):
         except KeyError:
             self.application.peers[self.node] = list()
 
+        # Reset timestamp value on connect so client gets message on next send action.
+        self.timestamp = None
+        self.send()
+
     def on_message(self, message):
+        """Reads client's message and executes logic passed on that message."""
         if message.strip() == 'ping':
             data = json.dumps({'marker': 'ping'})
             self.write_message(data)
@@ -38,7 +49,7 @@ class OpenvpnStatusWsHandler(WebSocketHandler):
         self.application.peers[self.node].remove(self)
 
     def send(self):
-        print('Sending');
+        """Sends parsed data to client if source file is modified since last check."""
         mtime = os.stat(self.status_log_path).st_mtime
 
         if mtime != self.timestamp:
@@ -48,6 +59,7 @@ class OpenvpnStatusWsHandler(WebSocketHandler):
 
     @property
     def node(self):
+        """Returns value of node property."""
         return self.options['node']
 
     @node.setter
@@ -59,6 +71,7 @@ class OpenvpnStatusWsHandler(WebSocketHandler):
 
     @property
     def status_log_path(self):
+        """Returns value of status_log_path property."""
         return self.options['status_log_path']
 
     @status_log_path.setter
@@ -68,6 +81,7 @@ class OpenvpnStatusWsHandler(WebSocketHandler):
 
     @property
     def timestamp(self):
+        """Returns value of timestamp property."""
         return self.options['timestamp']
 
     @timestamp.setter
