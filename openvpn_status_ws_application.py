@@ -1,14 +1,19 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
+
+"""File that contains OpenvpnStatusWsApplication class."""
+
+import datetime
 from tornado.web import Application
 from tornado import gen
 from tornado.ioloop import IOLoop
-import datetime
-
 
 
 class OpenvpnStatusWsApplication(Application):
+    """Class that handler requests."""
+
     def __init__(self, **kwargs):
+        """Sets up routes and properties."""
         from openvpn_status_ws_handler import OpenvpnStatusWsHandler
 
         self.peers = dict()
@@ -21,11 +26,11 @@ class OpenvpnStatusWsApplication(Application):
 
     @gen.coroutine
     def watcher(self, node):
+        """Watch for status log file changes, and send messages if it's changed."""
         while True:
             print(self.peers)
             try:
                 for peer in self.peers[node]:
-                    print(peer)
                     peer.send()
 
                 yield gen.Task(
@@ -33,4 +38,3 @@ class OpenvpnStatusWsApplication(Application):
                     datetime.timedelta(milliseconds=500))
             except KeyError:
                 self.peers[node] = list()
-
