@@ -9,7 +9,7 @@ from tornado.ioloop import IOLoop
 from tornado.websocket import WebSocketHandler, WebSocketClosedError
 from tornado.web import Application
 from collections import defaultdict
-from openvpn_status_ws_helper import get_status_log_path_for_node, parse_status_log
+import openvpn_status_ws_helper as helper
 import json
 
 
@@ -28,7 +28,9 @@ server = HTTPServer(application)
 server.listen(options.port)
 signal.signal(signal.SIGINT, lambda sig, frame: shutdown(server))
 logging.info('Starting server on localhost:{}'.format(options.port))
-application.watcher(195)
+nodes = helper.get_nodes()
+for node in nodes:
+    application.watcher(node)
 IOLoop.instance().start()
 
 def shutdown(server):

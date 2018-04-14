@@ -3,6 +3,33 @@
 import os
 import json
 
+def get_settings_path():
+    container = os.path.dirname(os.path.realpath(__file__))
+
+    if not container.endswith('/'):
+        container += '/'
+    settings_path = container + 'settings.json'
+
+    if not os.path.isfile(settings_path):
+        return None
+
+    return settings_path
+
+def get_nodes():
+    nodes = list()
+    settings_path = get_settings_path()
+    
+    if not settings_path:
+        return nodes
+    
+    with open(settings_path, 'r') as file_handle:
+        data = json.load(file_handle)
+
+        for node in data['nodes']:
+            nodes.append(int(node['id']))
+    
+    return nodes
+
 def parse_status_log(status_log_path):
     with open(status_log_path, 'r') as file_handle:
         data = dict()
