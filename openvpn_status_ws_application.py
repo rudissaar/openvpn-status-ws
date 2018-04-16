@@ -16,6 +16,7 @@ class OpenvpnStatusWsApplication(Application):
         """Sets up routes and properties."""
         from openvpn_status_ws_handler import OpenvpnStatusWsHandler
 
+        self.running = True
         self.peers = dict()
 
         routes = [
@@ -27,7 +28,7 @@ class OpenvpnStatusWsApplication(Application):
     @gen.coroutine
     def watcher(self, node):
         """Watch for status log file changes, and send messages if it's changed."""
-        while True:
+        while self.running:
             print(self.peers)
             try:
                 for peer in self.peers[node]:
