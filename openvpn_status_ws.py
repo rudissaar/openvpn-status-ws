@@ -16,7 +16,9 @@ from openvpn_status_ws_application import OpenvpnStatusWsApplication
 
 define('debug', default=False, type=bool, help='Run in debug mode.')
 define('port', default=12200, type=int, help='Server port.')
-define('address', default='0.0.0.0', help='Server address.')
+
+address = helper.get_default_address()
+define('address', default=address, multiple=True, help='Server address.')
 
 def shutdown(server, application):
     """Stops application and server."""
@@ -35,9 +37,17 @@ def shutdown(server, application):
 parse_command_line()
 APPLICATION = OpenvpnStatusWsApplication(debug=options.debug)
 SERVER = HTTPServer(APPLICATION)
-SERVER.listen(options.port, address=options.address)
+
+if options.address:
+    if isinstance(options.address, (list,)):
+        for address in options.address:
+            SERVER.listen(options.port, address=address)
+            logging.info('> Starting server on %s:%s.', address, options.port)
+    else:
+        SERVER.listen(options.port, address=options.address)
+        logging.info('> Starting server on %s:%s.', options.address, options.port)
+
 signal.signal(signal.SIGINT, lambda sig, frame: shutdown(SERVER, APPLICATION))
-logging.info('Starting server on %s:%s', options.address, options.port)
 
 NODES = helper.get_nodes()
 

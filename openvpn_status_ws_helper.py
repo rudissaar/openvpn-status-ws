@@ -4,6 +4,7 @@ import os
 import json
 
 def get_settings_path():
+    """Returns path of the settings file, None upon failure."""
     container = os.path.dirname(os.path.realpath(__file__))
 
     if not container.endswith('/'):
@@ -16,7 +17,7 @@ def get_settings_path():
     return settings_path
 
 def get_settings_dict():
-    """Return contents of the settings file as dict, None upon failure."""
+    """Returns contents of the settings file as dict, None upon failure."""
     settings_path = get_settings_path()
 
     with open(settings_path, 'r') as file_handle:
@@ -25,9 +26,43 @@ def get_settings_dict():
 
     return None
 
+def get_address():
+    """Returns address from settings file, None upon failure."""
+    settings = get_settings_dict()
+
+    try:
+        if bool(settings['address']):
+            return settings['addresses']
+    except KeyError:
+        return None
+
+    return None
+
+def get_addresses():
+    """Returns list of addresses from settings file, None upon failure."""
+    settings = get_settings_dict()
+
+    try:
+        return settings['addresses']
+    except KeyError:
+        return None
+
+def get_default_address():
+    address = get_address()
+    
+    if not address:
+        addresses = get_addresses()
+        
+        if addresses:
+            return addresses
+        else:
+            return ['0.0.0.0', '::']
+
+    return address
+
 def get_nodes():
-    nodes = list()
     settings_path = get_settings_path()
+    nodes = list()
     
     if not settings_path:
         return nodes
