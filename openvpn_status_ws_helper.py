@@ -32,7 +32,7 @@ def get_address():
 
     try:
         if bool(settings['address']):
-            return settings['addresses']
+            return settings['address']
     except KeyError:
         return None
 

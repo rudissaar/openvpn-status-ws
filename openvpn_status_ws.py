@@ -14,11 +14,9 @@ from tornado.options import define, parse_command_line, options
 import openvpn_status_ws_helper as helper
 from openvpn_status_ws_application import OpenvpnStatusWsApplication
 
-define('debug', default=False, type=bool, help='Run in debug mode.')
-define('port', default=12200, type=int, help='Server port.')
-
-address = helper.get_default_address()
-define('address', default=address, multiple=True, help='Server address.')
+ADDRESS = helper.get_default_address()
+define('address', default=ADDRESS, multiple=True, help='Server address or addresses to listen on.')
+define('port', default=12200, type=int, help='Server port to listen on.')
 
 def shutdown(server, application):
     """Stops application and server."""
@@ -35,7 +33,7 @@ def shutdown(server, application):
     ioloop.add_timeout(time.time() + 1, finalize)
 
 parse_command_line()
-APPLICATION = OpenvpnStatusWsApplication(debug=options.debug)
+APPLICATION = OpenvpnStatusWsApplication()
 SERVER = HTTPServer(APPLICATION)
 
 if options.address:
