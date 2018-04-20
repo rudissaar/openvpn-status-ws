@@ -1,5 +1,8 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
+
+"""File that contains helper functions."""
+
 import os
 import json
 
@@ -48,11 +51,12 @@ def get_addresses():
         return None
 
 def get_default_address():
+    """Returns value that will be used as default server address."""
     address = get_address()
-    
+
     if not address:
         addresses = get_addresses()
-        
+
         if addresses:
             return addresses
         else:
@@ -60,39 +64,30 @@ def get_default_address():
 
     return address
 
-def get_nodes():
-    settings_path = get_settings_path()
+def get_node_ids():
+    """Returns list of ids, it can be empty list."""
+    data = get_settings_dict()
     nodes = list()
-    
-    if not settings_path:
-        return nodes
-    
-    with open(settings_path, 'r') as file_handle:
-        data = json.load(file_handle)
 
-        for node in data['nodes']:
-            nodes.append(int(node['id']))
-    
+    for node in data['nodes']:
+        nodes.append(int(node['id']))
+
     return nodes
 
+def get_status_log_path_for_node(node_id):
+    """Returns path of the status log for node, None upon failure."""
+    data = get_settings_dict()
+    nodes = data['nodes']
+
+    for node in nodes:
+        if int(node['id']) == int(node_id):
+            return node['path'].strip()
+
 def parse_status_log(status_log_path):
+    """Parses OpenVPN's status log and returns it in json format, None upon failure."""
     with open(status_log_path, 'r') as file_handle:
         data = dict()
         data['marker'] = 'data'
         data['content'] = file_handle.read()
         return json.dumps(data)
-    return False
-
-def get_status_log_path_for_node(node_id):
-    data = get_settings_dict()
-
-    if data and 'nodes' in data:
-        nodes = data['nodes']
-    else:
-        return None
-
-    for node in nodes:
-        if int(node['id']) == int(node_id) and node['path']:
-            return node['path'].strip()
-
     return None

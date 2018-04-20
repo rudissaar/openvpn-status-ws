@@ -47,7 +47,7 @@ if options.address:
 
 signal.signal(signal.SIGINT, lambda sig, frame: shutdown(SERVER, APPLICATION))
 
-NODES = helper.get_nodes()
+NODES = helper.get_node_ids()
 
 for node in NODES:
     APPLICATION.watcher(node)
