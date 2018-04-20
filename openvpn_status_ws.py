@@ -16,7 +16,9 @@ from openvpn_status_ws_application import OpenvpnStatusWsApplication
 
 ADDRESS = helper.get_default_address()
 define('address', default=ADDRESS, multiple=True, help='Server address or addresses to listen on.')
-define('port', default=12200, type=int, help='Server port to listen on.')
+
+PORT = helper.get_default_port()
+define('port', default=PORT, type=int, help='Server port to listen on.')
 
 def shutdown(server, application):
     """Stops application and server."""

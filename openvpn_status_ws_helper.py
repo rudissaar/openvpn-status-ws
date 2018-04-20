@@ -29,6 +29,17 @@ def get_settings_dict():
 
     return None
 
+def get_default_port():
+    """Returns value that will be used as default server port."""
+    settings = get_settings_dict()
+
+    try:
+        return int(settings['port'])
+    except KeyError:
+        pass
+
+    return 12200
+
 def get_address():
     """Returns address from settings file, None upon failure."""
     settings = get_settings_dict()
