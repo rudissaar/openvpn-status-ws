@@ -97,8 +97,11 @@ def get_status_log_path_for_node(node_id):
 def parse_status_log(status_log_path):
     """Parses OpenVPN's status log and returns it in json format, None upon failure."""
     with open(status_log_path, 'r') as file_handle:
+        raw_data = file_handle.read()
+
         data = dict()
-        data['marker'] = 'data'
-        data['content'] = file_handle.read()
+        data['raw_data'] = raw_data
+
         return json.dumps(data)
+
     return None

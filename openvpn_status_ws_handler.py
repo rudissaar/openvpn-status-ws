@@ -5,8 +5,10 @@
 
 import os
 import json
+
 from tornado.websocket import WebSocketHandler
-from openvpn_status_ws_helper import get_status_log_path_for_node, parse_status_log
+
+import openvpn_status_ws_helper as helper
 
 
 class OpenvpnStatusWsHandler(WebSocketHandler):
@@ -23,7 +25,7 @@ class OpenvpnStatusWsHandler(WebSocketHandler):
     def open(self, node):
         # pylint: disable=W0221
         self.node = node
-        self.status_log_path = get_status_log_path_for_node(self.node)
+        self.status_log_path = helper.get_status_log_path_for_node(self.node)
 
         if self.status_log_path is None:
             self.close()
@@ -54,8 +56,13 @@ class OpenvpnStatusWsHandler(WebSocketHandler):
 
         if mtime != self.timestamp:
             self.timestamp = mtime
-            data = parse_status_log(self.status_log_path)
-            self.write_message(data)
+            parsed_log = helper.parse_status_log(self.status_log_path)
+
+            if parsed_log:
+                data = dict()
+                data['marker'] = 'data'
+                data['content'] = parsed_log
+                self.write_message(data)
 
     @property
     def node(self):
