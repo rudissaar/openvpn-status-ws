@@ -9,6 +9,7 @@ import json
 from tornado.websocket import WebSocketHandler
 
 import openvpn_status_ws_helper as helper
+from openvpn_status_ws_parser import OpenvpnStatusWsParser
 
 
 class OpenvpnStatusWsHandler(WebSocketHandler):
@@ -56,7 +57,8 @@ class OpenvpnStatusWsHandler(WebSocketHandler):
 
         if mtime != self.timestamp:
             self.timestamp = mtime
-            parsed_log = helper.parse_status_log(self.status_log_path)
+            parser = OpenvpnStatusWsParser(self.status_log_path)
+            parsed_log = parser.data
 
             if parsed_log:
                 data = dict()
