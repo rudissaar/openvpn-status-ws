@@ -5,6 +5,11 @@
         <meta http-equiv="X-UA-Compatible" content="IE=edge">
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <title>OpenVPN Status Log</title>
+        <style>
+            #log {
+                font-size: 1.4em;
+            }
+        </style>
     </head>
     <body>
         <pre>
@@ -21,9 +26,10 @@
             socket.onmessage = function (message) {
                 if (message.data) {
                     var data = JSON.parse(message.data);
+                    console.log(data.content);
                     
                     if (data.marker === 'data') {
-                        document.getElementById('log').innerHTML = data.content;
+                        document.getElementById('log').innerHTML = JSON.stringify(data.content, null, 4);
                     }
                 }
             }

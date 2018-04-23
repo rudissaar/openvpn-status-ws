@@ -3,6 +3,8 @@
 
 """File that contains OpenvpnStatusWsParser class."""
 
+import time
+from datetime import datetime
 
 class OpenvpnStatusWsParser():
     log_path = None
@@ -25,6 +27,25 @@ class OpenvpnStatusWsParser():
             self.log_type = 'subnet'
         elif first_line == 'OpenVPN STATISTICS':
             self.log_type = 'ptp'
+
+    def get_updated_at(self):
+        """Returns iso8601 and epoch formatted datetime of last log update."""
+        second_line = self.raw_data.split("\n")[1].strip()
+        
+        if second_line.startswith('Updated,'):
+            value = second_line.split(',')[1]
+            updated_datetime = datetime.strptime(value, '%a %b %d %H:%M:%S %Y')
+            updated_iso8601 = updated_datetime.isoformat()
+            updated_ts = time.mktime(updated_datetime.timetuple())
+
+            updated_at = {
+                'iso8601': updated_iso8601,
+                'ts': updated_ts
+            }
+            
+            return updated_at
+
+        return None
 
     def get_clients(self):
         lines = self.raw_data.split("\n")
@@ -54,6 +75,7 @@ class OpenvpnStatusWsParser():
 
         if self.log_type == 'subnet':
             data['topology'] = self.log_type
+            data['updated_at'] = self.get_updated_at()
             data['clients'] = self.get_clients()
             data['clients_connected'] = self.get_clients_connected()
         elif self.log_type == 'ptp':
