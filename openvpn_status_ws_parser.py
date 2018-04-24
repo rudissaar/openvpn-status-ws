@@ -6,6 +6,21 @@
 import time
 from datetime import datetime
 
+def get_parsed_datetime(raw_value):
+    """Returns iso8601 and epoch formatted datetime of specified raw value."""
+    datet = datetime.strptime(raw_value, '%a %b %d %H:%M:%S %Y')
+    iso = datet.isoformat()
+    tstamp = time.mktime(datet.timetuple())
+
+    parsed_date = {
+        'iso8601': iso,
+        'ts': tstamp
+    }
+
+    return parsed_date
+
+
+
 class OpenvpnStatusWsParser():
     log_path = None
     log_type = None
@@ -22,27 +37,20 @@ class OpenvpnStatusWsParser():
 
     def fetch_log_type(self):
         first_line = self.raw_data.split("\n")[0].strip()
-        
+
         if first_line == 'OpenVPN CLIENT LIST':
             self.log_type = 'subnet'
         elif first_line == 'OpenVPN STATISTICS':
             self.log_type = 'ptp'
 
+
     def get_updated_at(self):
         """Returns iso8601 and epoch formatted datetime of last log update."""
         second_line = self.raw_data.split("\n")[1].strip()
-        
-        if second_line.startswith('Updated,'):
-            value = second_line.split(',')[1]
-            updated_datetime = datetime.strptime(value, '%a %b %d %H:%M:%S %Y')
-            updated_iso8601 = updated_datetime.isoformat()
-            updated_ts = time.mktime(updated_datetime.timetuple())
 
-            updated_at = {
-                'iso8601': updated_iso8601,
-                'ts': updated_ts
-            }
-            
+        if second_line.startswith('Updated,'):
+            raw_value = second_line.split(',')[1]
+            updated_at = get_parsed_datetime(raw_value)
             return updated_at
 
         return None
@@ -50,6 +58,10 @@ class OpenvpnStatusWsParser():
     def get_timezone(self):
         """Returns system's timezone."""
         return time.tzname[1]
+
+    def get_connected_since(self, raw_value):
+        """Returns iso0601 and epoch formatted datetime of client's raw Connected Since value."""
+        return get_parsed_datetime(raw_value)
 
     def get_clients(self):
         lines = self.raw_data.split("\n")
@@ -64,10 +76,13 @@ class OpenvpnStatusWsParser():
             client = dict()
 
             for index, header in enumerate(headers):
-                client[header] = client_row[index]
+                if header == 'connected_since':
+                    client[header] = self.get_connected_since(client_row[index])
+                else:
+                    client[header] = client_row[index]
 
             clients[client['common_name']] = client
-         
+
         return clients
 
     def get_clients_connected(self):

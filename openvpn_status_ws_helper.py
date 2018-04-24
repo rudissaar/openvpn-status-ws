@@ -6,6 +6,7 @@
 import os
 import json
 
+
 def get_settings_path():
     """Returns path of the settings file, None upon failure."""
     container = os.path.dirname(os.path.realpath(__file__))
