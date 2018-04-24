@@ -47,6 +47,10 @@ class OpenvpnStatusWsParser():
 
         return None
 
+    def get_timezone(self):
+        """Returns system's timezone."""
+        return time.tzname[1]
+
     def get_clients(self):
         lines = self.raw_data.split("\n")
         start = lines.index('Common Name,Real Address,Bytes Received,Bytes Sent,Connected Since')
@@ -76,6 +80,7 @@ class OpenvpnStatusWsParser():
         if self.log_type == 'subnet':
             data['topology'] = self.log_type
             data['updated_at'] = self.get_updated_at()
+            data['timezone'] = self.get_timezone()
             data['clients'] = self.get_clients()
             data['clients_connected'] = self.get_clients_connected()
         elif self.log_type == 'ptp':
