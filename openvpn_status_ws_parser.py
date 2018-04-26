@@ -65,6 +65,23 @@ class OpenvpnStatusWsParser():
 
         return address
 
+    @staticmethod
+    def get_traffic(byte_stats):
+        """Returns dict that contains parsed traffic statistics."""
+        traffic = dict()
+        traffic['received'] = dict()
+        traffic['sent'] = dict()
+
+        for key, value in byte_stats.items():
+            group = key.replace('bytes_', '')
+
+            try:
+                traffic[group]['bytes'] = int(value)
+            except KeyError:
+                traffic[group]['bytes'] = None
+
+        return traffic
+
     def get_updated_at(self):
         """Returns iso8601 and epoch formatted datetime of last log update."""
         second_line = self.raw_data.split("\n")[1].strip()
@@ -88,6 +105,7 @@ class OpenvpnStatusWsParser():
 
         headers = ['common_name', 'address', 'bytes_received', 'bytes_sent', 'connected_since']
         clients = dict()
+        byte_stats = dict()
 
         for line in lines[start + 1:end]:
             client_row = line.strip().split(',')
@@ -96,12 +114,20 @@ class OpenvpnStatusWsParser():
             for index, header in enumerate(headers):
                 if header == 'address':
                     client[header] = self.get_real_address(client_row[index])
+                elif header == 'bytes_received' or header == 'bytes_sent':
+                    byte_stats[header] = client_row[index]
                 elif header == 'connected_since':
                     client[header] = self.get_connected_since(client_row[index])
                 else:
                     client[header] = client_row[index]
 
+            if bool(byte_stats):
+                client['traffic'] = self.get_traffic(byte_stats)
+            else:
+                client['traffic'] = None
+
             clients[client['common_name']] = client
+            byte_stats.clear()
 
         return clients
 
