@@ -5,6 +5,7 @@
 
 import time
 from datetime import datetime
+from humanize import naturalsize
 
 
 class OpenvpnStatusWsParser():
@@ -77,6 +78,7 @@ class OpenvpnStatusWsParser():
 
             try:
                 traffic[group]['bytes'] = int(value)
+                traffic[group]['rounded'] = naturalsize(int(value))
             except KeyError:
                 traffic[group]['bytes'] = None
 
