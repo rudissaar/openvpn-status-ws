@@ -131,6 +131,22 @@ class OpenvpnStatusWsParser():
             clients[client['common_name']] = client
             byte_stats.clear()
 
+        start = lines.index('Virtual Address,Common Name,Real Address,Last Ref')
+        end = lines.index('GLOBAL STATS')
+
+        headers = ['virtual_address', 'common_name', 'real_address', 'last_ref']
+
+        for line in lines[start + 1:end]:
+            client_row = line.strip().split(',')
+            common_name = client_row[headers.index('common_name')]
+
+            for index, header in enumerate(headers):
+                if header == 'virtual_address':
+                    virtual_address = dict()
+                    virtual_address['ip'] = client_row[index]
+
+                    clients[common_name]['address']['virtual'] = virtual_address
+
         return clients
 
     def get_clients_connected(self):
