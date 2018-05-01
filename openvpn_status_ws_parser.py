@@ -57,12 +57,10 @@ class OpenvpnStatusWsParser():
         """Returns dict that contains parsed IP address and port."""
         ip_address, port = raw_value.split(':')
 
-        address = {
-            'real': {
-                'ip': ip_address,
-                'port': int(port)
-            }
-        }
+        address = dict()
+        address['real'] = dict()
+        address['real']['ip'] = ip_address
+        address['real']['port'] = int(port)
 
         return address
 
@@ -95,10 +93,6 @@ class OpenvpnStatusWsParser():
 
         return None
 
-    def get_connected_since(self, raw_value):
-        """Returns iso0601 and epoch formatted datetime of client's raw Connected Since value."""
-        return self.get_parsed_datetime(raw_value)
-
     def get_clients(self):
         """Finds client rows from raw data and returns dict that contains client information."""
         lines = self.raw_data.split("\n")
@@ -119,7 +113,7 @@ class OpenvpnStatusWsParser():
                 elif header == 'bytes_received' or header == 'bytes_sent':
                     byte_stats[header] = client_row[index]
                 elif header == 'connected_since':
-                    client[header] = self.get_connected_since(client_row[index])
+                    client[header] = self.get_parsed_datetime(client_row[index])
                 else:
                     client[header] = client_row[index]
 
@@ -134,7 +128,7 @@ class OpenvpnStatusWsParser():
         start = lines.index('Virtual Address,Common Name,Real Address,Last Ref')
         end = lines.index('GLOBAL STATS')
 
-        headers = ['virtual_address', 'common_name', 'real_address', 'last_ref']
+        headers = ['virtual_address', 'common_name', 'real_address', 'last_reference']
 
         for line in lines[start + 1:end]:
             client_row = line.strip().split(',')
@@ -146,6 +140,8 @@ class OpenvpnStatusWsParser():
                     virtual_address['ip'] = client_row[index]
 
                     clients[common_name]['address']['virtual'] = virtual_address
+                elif header == 'last_reference':
+                    clients[common_name][header] = self.get_parsed_datetime(client_row[index])
 
         return clients
 
