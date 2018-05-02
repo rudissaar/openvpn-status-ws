@@ -1,3 +1,4 @@
 .idea
 __pycache__
 settings.json
+systemd/openvpn-status-ws.service

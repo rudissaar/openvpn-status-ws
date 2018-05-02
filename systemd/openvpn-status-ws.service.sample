@@ -1,0 +1,17 @@
+[Unit]
+Description=Lightweight server that provides you with parsed OpenVPN's status logs in real-time by using WebSockets.
+After=network.target remote-fs.target nss-lookup.target
+
+[Service]
+User={{{USER}}}
+Group={{{GROUP}}}
+Type=simple
+ExecStart={{{PYTHON}}} {{{SCRIPT}}}
+ExecReload=/bin/kill -s HUP $MAINPID
+KillSignal=SIGQUIT
+TimeoutStopSec=5
+KillMode=mixed
+PrivateTmp=true
+
+[Install]
+WantedBy=multi-user.target

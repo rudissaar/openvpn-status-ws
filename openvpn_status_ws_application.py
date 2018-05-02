@@ -29,7 +29,6 @@ class OpenvpnStatusWsApplication(Application):
     def watcher(self, node_id):
         """Watch for status log file changes, and send messages if it's changed."""
         while self.running:
-            print(self.peers)
             try:
                 for peer in self.peers[node_id]:
                     peer.send()
