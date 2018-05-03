@@ -1,0 +1,6 @@
+#!/usr/bin/env bash
+
+# Specify user and group that you wish use for that service.
+#USER=nobody
+#GROUP=nobody
+
