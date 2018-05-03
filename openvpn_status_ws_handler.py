@@ -7,6 +7,7 @@ import os
 import json
 
 from tornado.websocket import WebSocketHandler
+from urllib.parse import urlparse
 
 import openvpn_status_ws_helper as helper
 from openvpn_status_ws_parser import OpenvpnStatusWsParser
@@ -21,16 +22,17 @@ class OpenvpnStatusWsHandler(WebSocketHandler):
     options['timestamp'] = None
 
     def check_origin(self, origin):
+        node = helper.get_node_from_uri(self.request.uri)
+        domain = urlparse(origin).netloc.lower()
+
+        if not node in helper.get_node_ids():
+            return False
+
         return True
 
     def open(self, node):
         # pylint: disable=W0221
         self.node = node
-
-        if not self.node in helper.get_node_ids():
-            self.close()
-            return
-
         self.status_log_path = helper.get_status_log_path_for_node(self.node)
 
         if self.status_log_path is None:
@@ -54,12 +56,7 @@ class OpenvpnStatusWsHandler(WebSocketHandler):
             self.send()
 
     def on_close(self):
-        try:
-            self.application.peers[self.node].remove(self)
-        except KeyError:
-            pass
-        except ValueError:
-            pass
+        self.application.peers[self.node].remove(self)
 
     def send(self):
         """Sends parsed data to client if source file is modified since last check."""

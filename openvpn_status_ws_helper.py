@@ -5,7 +5,13 @@
 
 import os
 import json
+import re
 
+
+def get_node_from_uri(uri):
+    """Parses given URI and returns it."""
+    node = re.sub(r'\D', '', uri)
+    return int(node)
 
 def get_settings_path():
     """Returns path of the settings file, None upon failure."""
