@@ -26,6 +26,11 @@ class OpenvpnStatusWsHandler(WebSocketHandler):
     def open(self, node):
         # pylint: disable=W0221
         self.node = node
+
+        if not self.node in helper.get_node_ids():
+            self.close()
+            return
+
         self.status_log_path = helper.get_status_log_path_for_node(self.node)
 
         if self.status_log_path is None:
@@ -49,7 +54,12 @@ class OpenvpnStatusWsHandler(WebSocketHandler):
             self.send()
 
     def on_close(self):
-        self.application.peers[self.node].remove(self)
+        try:
+            self.application.peers[self.node].remove(self)
+        except KeyError:
+            pass
+        except ValueError:
+            pass
 
     def send(self):
         """Sends parsed data to client if source file is modified since last check."""
