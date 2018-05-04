@@ -100,3 +100,15 @@ def get_status_log_path_for_node(node_id):
     for node in nodes:
         if int(node['id']) == int(node_id):
             return node['path'].strip()
+
+def get_origins_for_node(node_id):
+    """Returns list of origins for node, None upon failure."""
+    data = get_settings_dict()
+    nodes = data['nodes']
+
+    for node in nodes:
+        if int(node['id']) == int(node_id):
+            try:
+                return node['origins']
+            except KeyError:
+                return None

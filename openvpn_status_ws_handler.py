@@ -6,8 +6,8 @@
 import os
 import json
 
-from tornado.websocket import WebSocketHandler
 from urllib.parse import urlparse
+from tornado.websocket import WebSocketHandler
 
 import openvpn_status_ws_helper as helper
 from openvpn_status_ws_parser import OpenvpnStatusWsParser
@@ -25,8 +25,12 @@ class OpenvpnStatusWsHandler(WebSocketHandler):
         node = helper.get_node_from_uri(self.request.uri)
         domain = urlparse(origin).netloc.lower()
 
-        if not node in helper.get_node_ids():
+        if node not in helper.get_node_ids():
             return False
+
+        if bool(helper.get_origins_for_node(node)):
+            if domain not in helper.get_origins_for_node(node):
+                return False
 
         return True
 
