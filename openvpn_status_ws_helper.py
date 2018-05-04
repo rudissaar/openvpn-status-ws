@@ -13,24 +13,24 @@ def get_node_from_uri(uri):
     node = re.sub(r'\D', '', uri)
     return int(node)
 
-def get_settings_path():
-    """Returns path of the settings file, None upon failure."""
+def get_config_path():
+    """Returns path of the config file, None upon failure."""
     container = os.path.dirname(os.path.realpath(__file__))
 
     if not container.endswith('/'):
         container += '/'
-    settings_path = container + 'settings.json'
+    config_path = container + 'config.json'
 
-    if not os.path.isfile(settings_path):
+    if not os.path.isfile(config_path):
         return None
 
-    return settings_path
+    return config_path
 
-def get_settings_dict():
-    """Returns contents of the settings file as dict, None upon failure."""
-    settings_path = get_settings_path()
+def get_config_dict():
+    """Returns contents of the config file as dict, None upon failure."""
+    config_path = get_config_path()
 
-    with open(settings_path, 'r') as file_handle:
+    with open(config_path, 'r') as file_handle:
         data = json.load(file_handle)
         return data
 
@@ -38,33 +38,33 @@ def get_settings_dict():
 
 def get_default_port():
     """Returns value that will be used as default server port."""
-    settings = get_settings_dict()
+    config = get_config_dict()
 
     try:
-        return int(settings['port'])
+        return int(config['port'])
     except KeyError:
         pass
 
     return 12200
 
 def get_address():
-    """Returns address from settings file, None upon failure."""
-    settings = get_settings_dict()
+    """Returns address from config file, None upon failure."""
+    config = get_config_dict()
 
     try:
-        if bool(settings['address']):
-            return settings['address']
+        if bool(config['address']):
+            return config['address']
     except KeyError:
         return None
 
     return None
 
 def get_addresses():
-    """Returns list of addresses from settings file, None upon failure."""
-    settings = get_settings_dict()
+    """Returns list of addresses from config file, None upon failure."""
+    config = get_config_dict()
 
     try:
-        return settings['addresses']
+        return config['addresses']
     except KeyError:
         return None
 
@@ -84,7 +84,7 @@ def get_default_address():
 
 def get_node_ids():
     """Returns list of ids, it can be empty list."""
-    data = get_settings_dict()
+    data = get_config_dict()
     nodes = list()
 
     for node in data['nodes']:
@@ -94,7 +94,7 @@ def get_node_ids():
 
 def get_status_log_path_for_node(node_id):
     """Returns path of the status log for node, None upon failure."""
-    data = get_settings_dict()
+    data = get_config_dict()
     nodes = data['nodes']
 
     for node in nodes:
@@ -103,7 +103,7 @@ def get_status_log_path_for_node(node_id):
 
 def get_origins_for_node(node_id):
     """Returns list of origins for node, None upon failure."""
-    data = get_settings_dict()
+    data = get_config_dict()
     nodes = data['nodes']
 
     for node in nodes:
