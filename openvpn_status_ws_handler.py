@@ -3,6 +3,7 @@
 
 """File that contains OpenvpnStatusWsHandler class."""
 
+import logging
 import os
 import json
 
@@ -36,6 +37,7 @@ class OpenvpnStatusWsHandler(WebSocketHandler):
 
     def open(self, node):
         # pylint: disable=W0221
+        logging.info('Client connected: ' + self.request.remote_ip)
         self.node = node
         self.status_log_path = helper.get_status_log_path_for_node(self.node)
 

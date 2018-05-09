@@ -4,3 +4,6 @@
 #USER=nobody
 #GROUP=nobody
 
+# Specify different path for log file if you want.
+#LOG_FILE=/var/log/openvpn-status-ws.log
+
