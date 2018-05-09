@@ -41,8 +41,20 @@ SERVER = HTTPServer(APPLICATION)
 if options.address:
     if isinstance(options.address, (list,)):
         for address in options.address:
-            SERVER.listen(options.port, address=address)
-            logging.info('> Starting server on %s:%s.', address, options.port)
+            try:
+                SERVER.listen(options.port, address=address)
+                logging.info('> Starting server on %s:%s.', address, options.port)
+            except OSError as ex:
+                if ex.errno == 98:
+                    print("> Interface that you are trying to bind port on is already in use.")
+                    print('...')
+                    print('In case you are using IP address 0.0.0.0 or [::] inside your ')
+                    print("configuration, make sure that this address is only address in it's ")
+                    print("IP family (IPv4/IPv6).")
+                else:
+                    print('>' + ex)
+
+                exit(1)
     else:
         SERVER.listen(options.port, address=options.address)
         logging.info('> Starting server on %s:%s.', options.address, options.port)
