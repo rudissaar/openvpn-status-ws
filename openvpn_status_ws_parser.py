@@ -40,17 +40,20 @@ class OpenvpnStatusWsParser():
         iso = datet.isoformat()
         tstamp = time.mktime(datet.timetuple())
 
-        parsed_date = {
-            'iso8601': iso,
-            'ts': tstamp
-        }
+        parsed_date = dict()
+        parsed_date['iso8601'] = iso
+        parsed_date['ts'] = tstamp
 
         return parsed_date
 
     @staticmethod
     def get_timezone():
         """Returns system's timezone."""
-        return time.tzname[1]
+        timezone = dict()
+        timezone['name'] = time.tzname[1]
+        timezone['offset'] = time.strftime('%z')
+
+        return timezone
 
     @staticmethod
     def get_real_address(raw_value):
