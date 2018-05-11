@@ -37,7 +37,7 @@ class OpenvpnStatusWsHandler(WebSocketHandler):
 
     def open(self, node):
         # pylint: disable=W0221
-        logging.info('Client connected: ' + self.request.remote_ip)
+        logging.info(helper.build_open_node_log_string(self.request, node))
         self.node = node
         self.status_log_path = helper.get_status_log_path_for_node(self.node)
 

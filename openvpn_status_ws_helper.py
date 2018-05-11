@@ -112,3 +112,26 @@ def get_origins_for_node(node_id):
                 return node['origins']
             except KeyError:
                 return None
+
+def build_open_node_log_string(request, node):
+    """Method that builds up string that gets appended to log later."""
+    values = list()
+
+    try:
+        values.append(request.remote_ip)
+    except KeyError:
+        values.append('UNKNOWN_IP')
+
+    values.append(node)
+
+    try:
+        values.append(request.headers['Origin'])
+    except KeyError:
+        values.append('UNKNOWN_ORIGIN')
+
+    try:
+        values.append(request.headers['User-Agent'])
+    except KeyError:
+        values.append('UNKNOWN_USER_AGENT')
+
+    return '{NODE} %s - OPEN %s FROM %s - %s' % tuple(values)

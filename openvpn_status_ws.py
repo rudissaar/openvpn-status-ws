@@ -9,6 +9,7 @@ import logging
 
 from tornado.httpserver import HTTPServer
 from tornado.ioloop import IOLoop
+from tornado.log import LogFormatter
 from tornado.options import define, parse_command_line, options
 
 import openvpn_status_ws_helper as helper
@@ -24,17 +25,24 @@ def shutdown(server, application):
     """Stops application and server."""
     application.running = False
     ioloop = IOLoop.instance()
-    logging.info('> Stopping server.')
+    logging.info('{SERVER} Preparing to stop server.')
     server.stop()
 
     def finalize():
         """Makes sure that script will be terminated."""
         ioloop.stop()
-        logging.info('> Stopped.')
+        logging.info('{SERVER} Server successfully stopped.')
 
     ioloop.add_timeout(time.time() + 1, finalize)
 
 parse_command_line()
+
+LOG_FORMAT = '%(color)s[%(levelname)s] %(asctime)s :%(end_color)s %(message)s'
+LOG_FORMATTER = LogFormatter(fmt=LOG_FORMAT, color=True, datefmt='%Y-%m-%d %H:%M:%S %z')
+APP_LOGGER = logging.getLogger()
+APP_STREAM_HANDLER = APP_LOGGER.handlers[0]
+APP_STREAM_HANDLER.setFormatter(LOG_FORMATTER)
+
 APPLICATION = OpenvpnStatusWsApplication()
 SERVER = HTTPServer(APPLICATION)
 
@@ -43,10 +51,10 @@ if options.address:
         for address in options.address:
             try:
                 SERVER.listen(options.port, address=address)
-                logging.info('> Starting server on %s:%s.', address, options.port)
+                logging.info('{SERVER} Starting server on %s:%s.', address, options.port)
             except OSError as ex:
                 if ex.errno == 98:
-                    print("> Interface that you are trying to bind port on is already in use.")
+                    print("Interface that you are trying to bind port on is already in use.")
                     print('...')
                     print('In case you are using IP address 0.0.0.0 or [::] inside your ')
                     print("configuration, make sure that this address is only address in it's ")
@@ -57,7 +65,7 @@ if options.address:
                 exit(1)
     else:
         SERVER.listen(options.port, address=options.address)
-        logging.info('> Starting server on %s:%s.', options.address, options.port)
+        logging.info('{SERVER} Starting server on %s:%s.', options.address, options.port)
 
 signal.signal(signal.SIGINT, lambda sig, frame: shutdown(SERVER, APPLICATION))
 
