@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+        <title>OpenVPN Status WS</title>
+
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+        <style>
+            html,
+            body {
+                background-color: #DDD;
+            }
+
+            .table {
+                background-color: #FFF;
+            }
+
+            .container {
+                margin-top: 40px;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="container">
+            <table class="table">
+                <thead class="thead-dark">
+                    <tr>
+                        <th scope="col">Common Name</th>
+                        <th scope="col">Remote IP</th>
+                        <th scope="col">Virtual IP</th>
+                        <th scope="col">Connected Since</th>
+                    </tr>
+                </thead>
+                <tbody>
+                 </tbody>
+            </table>
+        </div>
+
+        <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.22.1/moment.min.js"></script>
+        <script>
+            var socket = new WebSocket('ws://localhost:12200/195');
+            var $tbody = jQuery('.table tbody');
+            var clients = [];
+
+            var parseDate = function (date) {
+                var utc = moment.utc(date).toDate();
+                var local = moment(utc).local().format('YYYY-MM-DD HH:mm:ss');
+                return local;
+            };
+
+            socket.onmessage = function (message) {
+                if (message.data) {
+                    var data = JSON.parse(message.data);
+                    var connectedClients = [];
+                    
+                    if (data.marker === 'data') {
+                        jQuery.each(data.content.clients, function (index, client) {
+                            connectedClients.push(client.common_name);
+
+                            if (jQuery.inArray(client.common_name, clients) === -1) {
+                                clients.push(client.common_name);
+                            }
+
+                            if (!jQuery('#client-' + client.common_name).length) {
+                                $tbody.append('<tr id="client-' + client.common_name + '">' +
+                                    '<td>' + client.common_name + '</td>' +
+                                    '<td>' + client.address.real.ip + '</td>' +
+                                    '<td>' + client.address.virtual.ip + '</td>' +
+                                    '<td>' + parseDate(client.connected_since.iso8601) + '</td>' +
+                                '</tr>');
+                            } else {
+                                jQuery('#client-' + client.common_name).html(
+                                    '<td>' + client.common_name + '</td>' +
+                                    '<td>' + client.address.real.ip + '</td>' +
+                                    '<td>' + client.address.virtual.ip + '</td>' +
+                                    '<td>' + parseDate(client.connected_since.iso8601)
+                                );
+                            }
+                        });
+
+                        jQuery.each(clients, function (index, client) {
+                            if (jQuery.inArray(client, connectedClients) === -1) {
+                                clients.splice(index, 1);
+
+                                if (jQuery('#client-' + client).length) {
+                                    jQuery('#client-' + client).remove();
+                                }
+                            }
+                        });
+                    }
+                }
+            }
+        </script>
+    </body>
+</html>
