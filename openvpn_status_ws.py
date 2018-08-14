@@ -15,6 +15,9 @@ from tornado.options import define, parse_command_line, options
 import openvpn_status_ws_helper as helper
 from openvpn_status_ws_application import OpenvpnStatusWsApplication
 
+if not helper.validate_config():
+    exit(1)
+
 ADDRESS = helper.get_default_address()
 define('address', default=ADDRESS, multiple=True, help='Server address or addresses to listen on.')
 

@@ -8,6 +8,13 @@ import json
 import re
 
 
+def validate_config():
+    """Checks if configuration file is valid and return boolean based on it."""
+    if not get_config_path():
+        print("> Configuration file 'config.json' doesn't exist, unable to continue.")
+        return False
+    return True
+
 def get_node_from_uri(uri):
     """Parses given URI and returns it."""
     node = re.sub(r'\D', '', uri)
@@ -77,8 +84,8 @@ def get_default_address():
 
         if addresses:
             return addresses
-        else:
-            return ['0.0.0.0', '::']
+
+        return ['0.0.0.0', '::']
 
     return address
 
