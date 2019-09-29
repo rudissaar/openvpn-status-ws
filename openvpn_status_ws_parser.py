@@ -113,7 +113,7 @@ class OpenvpnStatusWsParser():
             for index, header in enumerate(headers):
                 if header == 'address':
                     client[header] = self.get_real_address(client_row[index])
-                elif header == 'bytes_received' or header == 'bytes_sent':
+                elif header in ('bytes_received', 'bytes_sent'):
                     byte_stats[header] = client_row[index]
                 elif header == 'connected_since':
                     client[header] = self.get_parsed_datetime(client_row[index])

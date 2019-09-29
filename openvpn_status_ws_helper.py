@@ -23,10 +23,7 @@ def get_node_from_uri(uri):
 def get_config_path():
     """Returns path of the config file, None upon failure."""
     container = os.path.dirname(os.path.realpath(__file__))
-
-    if not container.endswith('/'):
-        container += '/'
-    config_path = container + 'config.json'
+    config_path = os.path.join(container, 'config.json')
 
     if not os.path.isfile(config_path):
         return None
@@ -108,6 +105,8 @@ def get_status_log_path_for_node(node_id):
         if int(node['id']) == int(node_id):
             return node['path'].strip()
 
+    return None
+
 def get_origins_for_node(node_id):
     """Returns list of origins for node, None upon failure."""
     data = get_config_dict()
@@ -119,6 +118,8 @@ def get_origins_for_node(node_id):
                 return node['origins']
             except KeyError:
                 return None
+
+    return None
 
 def build_open_node_log_string(request, node):
     """Method that builds up string that gets appended to log later."""
