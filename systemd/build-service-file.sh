@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+# Bash script that generates systemd service file for your system.
 
 RELATIVE_PATH=$(dirname ${0})
 SRC_FILE="${RELATIVE_PATH}/openvpn-status-ws.service.sample"
@@ -21,4 +22,3 @@ if [[ -f "${SRC_FILE}" ]]; then
 else
     echo '> Unable to find sample file.'
 fi
-
